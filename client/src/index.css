@@ -1,0 +1,178 @@
+/* === Fonts === */
+@import url('https://api.fontshare.com/v2/css?f[]=plus-jakarta-sans@400,500,600,700&f[]=general-sans@400,500,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* === Brand Palette: Warm Youth Green + Deep Navy === */
+    /* Light mode */
+    --background: 120 20% 97%;
+    --foreground: 220 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 15%;
+
+    /* Primary: 청소년 공간의 따뜻한 초록 */
+    --primary: 152 55% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 152 30% 92%;
+    --secondary-foreground: 152 55% 22%;
+
+    --muted: 120 12% 94%;
+    --muted-foreground: 220 10% 48%;
+
+    --accent: 152 40% 90%;
+    --accent-foreground: 152 55% 22%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 120 12% 88%;
+    --input: 120 12% 88%;
+    --ring: 152 55% 32%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --color-youth: #1a7a4a;
+    --color-youth-light: #e8f7f0;
+    --color-youth-hover: #155f3a;
+    --color-navy: #1a2540;
+    --color-navy-light: #eef0f5;
+    --color-issue-conflict: #e84d4d;
+    --color-issue-facility: #f5a623;
+    --color-issue-counseling: #4a90d9;
+    --color-issue-routine: #52c77b;
+
+    --font-display: 'Plus Jakarta Sans', 'Apple SD Gothic Neo', sans-serif;
+    --font-body: 'General Sans', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  }
+
+  .dark {
+    --background: 220 25% 10%;
+    --foreground: 120 15% 90%;
+
+    --card: 220 22% 13%;
+    --card-foreground: 120 15% 90%;
+
+    --popover: 220 22% 13%;
+    --popover-foreground: 120 15% 90%;
+
+    --primary: 152 50% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 152 40% 70%;
+
+    --muted: 220 18% 18%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 220 18% 22%;
+    --accent-foreground: 152 40% 70%;
+
+    --destructive: 0 65% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 18% 22%;
+    --input: 220 18% 22%;
+    --ring: 152 50% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+}
+
+@layer utilities {
+  /* 모바일 터치 최적화 */
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* 이슈 색상 */
+  .issue-conflict { color: var(--color-issue-conflict); }
+  .issue-facility { color: var(--color-issue-facility); }
+  .issue-counseling { color: var(--color-issue-counseling); }
+  .issue-routine { color: var(--color-issue-routine); }
+
+  .bg-issue-conflict { background-color: #fef2f2; color: var(--color-issue-conflict); }
+  .bg-issue-facility { background-color: #fffbeb; color: var(--color-issue-facility); }
+  .bg-issue-counseling { background-color: #eff6ff; color: var(--color-issue-counseling); }
+  .bg-issue-routine { background-color: #f0fdf4; color: var(--color-issue-routine); }
+
+  .dark .bg-issue-conflict { background-color: #3f1111; color: #f87171; }
+  .dark .bg-issue-facility { background-color: #3f2c00; color: #fbbf24; }
+  .dark .bg-issue-counseling { background-color: #0d2140; color: #60a5fa; }
+  .dark .bg-issue-routine { background-color: #052e16; color: #4ade80; }
+}
+
+/* 페이지 전환 애니메이션 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+/* 체크박스 커스텀 */
+.routine-checkbox {
+  @apply flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200;
+  @apply border-border bg-card hover:border-primary/50 hover:bg-accent;
+}
+
+.routine-checkbox.checked {
+  @apply border-primary bg-primary/10;
+}
+
+/* 이슈 선택 카드 */
+.issue-card {
+  @apply flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200;
+  @apply border-border bg-card hover:border-primary/50;
+  min-height: 88px;
+}
+
+.issue-card.selected {
+  @apply border-primary bg-primary/10 shadow-sm;
+}
+
+/* 모바일 하단 네비게이션 */
+.bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  z-index: 50;
+}
+
+/* 스크롤바 숨기기 (모바일) */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* PDF 출력용 */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}
