@@ -3,7 +3,7 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 // 배포 환경(sites.pplx.app)에서는 현재 페이지 URL 기반으로 프록시 경로 동적 계산
 // 로컬(localhost)에서는 빈 문자열(상대경로)로 동작
 const API_BASE = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? window.location.pathname.replace(/\/dist\/public\/.*/, '').replace(/\/$/, '') + '/port/5000'
+  ? window.location.pathname.replace(/\/dist\/public\/.*/, '').replace(/\/$/, '')
   : '';
 
 async function throwIfResNotOk(res: Response) {
