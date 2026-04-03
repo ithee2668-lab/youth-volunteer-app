@@ -374,23 +374,22 @@ ${issueContext ? `오늘 이슈 맥락: ${issueContext}` : ""}
 
       if (!GEMINI_API_KEY) return res.status(500).json({ message: "AI 서비스가 설정되지 않았습니다" });
 
-      const systemPrompt = `당신은 청소년자유공간 대학생 자원봉사자가 봉사 기록을 스스로 작성하도록 돕는 코치입니다.
+const systemPrompt = `당신은 청소년자유공간 대학생 자원봉사자가 봉사 기록을 스스로 작성하도록 돕는 눈치 빠르고 센스 있는 코치입니다.
 현재 상황:
 - 오늘의 핵심 이슈: ${issueLabel || issueContext || "미선택"}
 - 봉사자가 작성 중인 내용: ${currentDraft ? `"${currentDraft}"` : "(아직 없음)"}
 
-대화 방식 (반드시 이 순서로):
-1. 처음 대화 시작 → 오늘 어떤 일이 있었는지 1가지 질문으로 시작
-2. 봉사자가 짧게 답하면 → "그때 어떻게 행동하셨나요?" / "왜 그렇게 하셨나요?" 등 1개 추가 질문
-3. 행동과 이유가 나오면 → "그 결과는 어떻게 됐나요?" 질문
-4. 상황·행동·결과가 모두 나왔을 때만 → STAR 구조로 정리한 문장 제안
+[핵심 규칙 - 반드시 엄수]
+1. (문맥 파악) 봉사자의 첫 입력이나 이전 대화에 이미 '어떤 상황'이었고 '어떻게 대처(행동)'했는지, 또는 '결과'가 포함되어 있다면 절대 똑같은 질문(예: "어떻게 행동하셨나요?")을 기계적으로 반복하지 마세요!
+2. (즉시 칭찬 및 스킵) 봉사자가 선제적으로 행동을 말했다면 즉시 그 대처를 칭찬하고, 자연스럽게 다음 단계(결과나 느낀 점)로 곧바로 건너뛰세요.
+3. 상황·행동·결과(STAR)가 모두 파악되었을 때만 STAR 구조로 정리한 문장 제안을 출력하세요.
 
-문장 제안 시 출력 형식 (4단계에서만 사용):
+문장 제안 시 출력 형식 (모든 정보가 모였을 때만 사용):
 📝 **제안 문장:**
 (봉사자가 말한 내용 기반의 100~150자 문장)
 💡 직접 수정해서 더 본인답게 만들어보세요!
 
-한국어로, 친근하고 따뜻하게, 2~3문장 이내로 짧게.`;
+한국어로, 친근하고 따뜻하게, 2~3문장 이내로 짧게 대화하세요.`;
 
       const aiReply = await callGemini(systemPrompt, messages, 350);
 
@@ -425,5 +424,40 @@ ${issueContext ? `오늘 이슈 맥락: ${issueContext}` : ""}
     res.json(storage.getSurveyByVolunteer(Number(req.params.volunteerId)) ?? null);
   });
 
+// ---- ★ 신규 추가: JD 매칭 리라이팅 API ----
+  app.post("/api/jd-match", async (req, res) => {
+    try {
+      const { portfolioData, targetJD } = req.body; 
+
+      if (!portfolioData || !targetJD) {
+        return res.status(400).json({ message: "봉사 기록과 채용 공고(JD)가 모두 필요합니다." });
+      }
+      if (!GEMINI_API_KEY) return res.status(500).json({ message: "AI 서비스가 설정되지 않았습니다" });
+
+      const jdPrompt = `당신은 최고의 취업 컨설턴트입니다. 아래 대학생의 '청소년자유공간 쉼표 봉사활동 기록'을 분석하여, 입력된 '채용공고(JD)'에 합격할 수 있는 맞춤형 자기소개서/포트폴리오 초안을 작성해 주세요.
+
+[목표 채용공고(JD)]
+${targetJD}
+
+[봉사자 누적 활동 기록]
+${JSON.stringify(portfolioData)}
+
+[출력 필수 양식 (마크다운 사용)]
+1. 🎯 JD 핵심 역량 요약: (해당 기업이 원하는 인재상을 2~3줄로 요약)
+2. ✨ 봉사 경험 매칭 포인트: (쉼표에서의 경험 중 기업의 요구 역량과 가장 잘 맞는 경험 3가지를 글머리 기호로 작성)
+3. 📝 자소서용 STAR 사례 추천: (봉사 기록 중 가장 훌륭한 갈등 중재나 시설 관리, 소통 에피소드 1개를 뽑아 STAR 기법의 자소서 한 문단으로 작성)`;
+
+      // 팀장님의 기존 callGemini 함수 양식에 맞춘 메시지 배열
+      const jdMessages = [{ role: "user", content: "내 봉사 기록을 바탕으로 이 채용 공고(JD)에 맞는 자소서를 써줘." }];
+      
+      // 글자 수를 넉넉하게 800 토큰으로 설정하여 호출
+      const geminiResponse = await callGemini(jdPrompt, jdMessages, 800); 
+      
+      res.status(200).json({ result: geminiResponse });
+    } catch (error) {
+      console.error("JD 매칭 오류:", error);
+      res.status(500).json({ message: "취업 포트폴리오 생성 중 오류가 발생했습니다." });
+    }
+  });
   return httpServer;
 }
